@@ -55,7 +55,6 @@ class VideoScan implements ShouldQueue
                 ));
 
                 $response = curl_exec($curl);
-                file_put_contents('/1.txt', $response.env('Scan_Video_Url'));
                 curl_close($curl);
                 $response = json_decode($response);
                 if($response->data[0]->status == 'success'){
