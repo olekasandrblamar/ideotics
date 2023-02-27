@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Backend\Uploads;
 use App\Http\Controllers\Controller;
 use App\Models\FileEntry;
 use Illuminate\Http\Request;
+use App\Jobs\VideoScan;
+use Carbon\Carbon;
 
 class UserUploadsController extends Controller
 {
@@ -134,53 +136,7 @@ class UserUploadsController extends Controller
     }
 
     public function scanVideo($id){
-        $result = [];
-        $fileEntry = FileEntry::where('id', $id)->userEntry()->notExpired()->with(['user', 'storageProvider'])->firstOrFail();
-        try {
-          if($fileEntry->storageProvider->symbol == 's3'){
-              $result['status'] = $this->scanCurl('s3://ideoticsv2/' . $fileEntry->path);
-              if($result['status'] == 'success'){
-                $fileEntry = FileEntry::find($id);
-                $fileEntry->scan_status = 1;
-                $fileEntry->save();
-              }
-          }else{
-              $result['status'] = null;
-          }
-        } catch (\Exception$e) {
-            toastr()->error($e->getMessage());
-            return back();
-        }
-        return $result;
-    }
-
-    public function scanCurl($s3_url){
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-        CURLOPT_URL => env('Scan_Video_Url'),
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS =>'{"data":["' . $s3_url . '",10,"aW191OwmDG97JZizLgY0MQbHBJ4TJN7R"]}',
-        CURLOPT_HTTPHEADER => array(
-            'Content-Type: application/json'
-        ),
-        ));
-
-        $response = curl_exec($curl);
-
-        curl_close($curl);
-        $response = json_decode($response);
-        if($response->data[0]->status == 'success'){
-          return $response->data[0]->status;
-        }else{
-          return null;
-        }
-
+        $job = (new VideoScan($id))->delay(Carbon::now()->addSeconds(10));
+        dispatch($job);
     }
 }

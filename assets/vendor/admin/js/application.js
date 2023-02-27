@@ -611,69 +611,22 @@
         $.ajax('users/scan-video/' + id, {
             type: 'GET',
             success:function(data, status, xhr){
-                if(data.status == 'success'){
-                    $(".status-" + id).html('<span class="badge bg-success">Success</span>');
-                }
             },
             error: function (jqXhr, textStatus, errorMessage) {
                 toastr.error('Something went wrong!');
             },
-            beforeSend : function(){
-                $("#preloader").show();
-            },
-            complete : function(){
-                $("#preloader").hide();
-            }
         })
     });
     
     $(".view-scan-button").click(function(){
         var id = $(this).attr('data-id');
-        var filename = $(this).attr('data-filename');
-        var link = $(this).attr('data-link');
         $.ajax('/admin/uploads/users/scan-video/' + id, {
             type: 'GET',
             success:function(data, status, xhr){
-                if(data.status == 'success'){
-                    var prefix = filename.substr(0, filename.length - 4);
-                    var track_link = link.replace(filename, prefix + "_tracked.mp4")
-                    var html = 
-                    '<li class="list-group-item d-flex justify-content-between">' + 
-                          '<strong>Status</strong>' +
-                          '<span class="badge bg-success">Success</span>' +
-                      '</li>' +
-                      '<li class="list-group-item justify-content-between">' +
-                          '<p class="m-0"><strong>Fetch Uploaded S3 Path</strong></p>' +
-                          '<p class="m-0"><span>' + filename + '</span></p>' +
-                      '</li>' +
-                      '<li class="list-group-item justify-content-between">' +
-                          '<p class="m-0"><strong>CSV File Path</strong></p>' +
-                          '<p class="m-0"><span>' + prefix + '_id_sorted.csv</span></p>' +
-                      '</li>' +
-                      '<li class="list-group-item justify-content-between">' +
-                          '<p class="m-0"><strong>JSON File 1 Path</strong></p>' +
-                          '<p class="m-0"><span>' + prefix + '_id_sorted.json</span></p>' +
-                      '</li>' +
-                      '<li class="list-group-item justify-content-between">' +
-                          '<p class="m-0"><strong>JSON File 2 Path</strong></p>' +
-                          '<p class="m-0"><span>' + prefix + '_time_sorted.json</span></p>' +
-                      '</li>' +
-                      '<li class="list-group-item justify-content-between processed_video_s3_path" style="cursor: pointer" data-url="' + track_link + '">' +
-                          '<p class="m-0"><strong>Processed Video S3 Path</strong></p>' +
-                          '<p class="m-0"><span>' + prefix + '_tracked.mp4</span></p>' +
-                      '</li>';
-                    $('.append').html(html);
-                    $(".view-scan-button").remove();
-                }
+
             },
             error: function (jqXhr, textStatus, errorMessage) {
                 toastr.error('Something went wrong!');
-            },
-            beforeSend : function(){
-                $("#preloader").show();
-            },
-            complete : function(){
-                $("#preloader").hide();
             }
         })
     });

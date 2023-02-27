@@ -56,6 +56,7 @@
                                 <th class="tb-w-20x">{{ __('Details') }}</th>
                                 <th class="tb-w-5x">{{ __('Size') }}</th>
                                 <th class="tb-w-5x">{{ __('Status') }}</th>
+                                <th class="tb-w-5x">{{ __('Duration') }}</th>
                                 <th class="tb-w-3x text-center">{{ __('Downloads') }}</th>
                                 <th class="tb-w-3x text-center">{{ __('Views') }}</th>
                                 <th class="tb-w-7x text-center">{{ __('Storage') }}</th>
@@ -88,9 +89,12 @@
                                     </td>
                                     <td>{{ formatBytes($fileEntry->size) }}</td>
                                     <td class="text-center status-{{$fileEntry->id}}">
-                                      @if(!is_null($fileEntry->scan_status))
-                                        <span class="badge bg-success">Success</span>                                        
+                                      @if($fileEntry->scan_status == 1)
+                                        <span class="badge bg-success">Success</span>
                                       @endif
+                                    </td>
+                                    <td class="text-center duration-{{$fileEntry->id}}">
+                                        {{ $fileEntry->duration }}
                                     </td>
                                     <td class="text-center">{{ formatNumber($fileEntry->downloads) }}</td>
                                     <td class="text-center">{{ formatNumber($fileEntry->views) }}</td>

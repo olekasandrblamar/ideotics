@@ -53,7 +53,7 @@
                                 class="fas fa-download me-2"></i>{{ __('Download') }}</a>
                         @if($fileEntry->scan_status !== 1)
                         <button
-                            class="btn btn-primary btn-lg w-100 mb-3 view-scan-button" data-id="{{ $fileEntry->id }}" data-filename="{{ $fileEntry->filename }}" data-link="{{$fileEntry->link }}"><i
+                            class="btn btn-primary btn-lg w-100 mb-3 view-scan-button" data-id="{{ $fileEntry->id }}"><i
                                 class="fas fa-search me-2"></i>{{ __('Scan') }}</button>
                         @endif
                         <form action="{{ route('admin.uploads.users.destroy', $fileEntry->shared_id) }}" method="POST">
@@ -112,6 +112,10 @@
                     <li class="list-group-item d-flex justify-content-between">
                         <strong>{{ __('Status') }}</strong>
                         <span class="badge bg-success">Success</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <strong>{{ __('Duration') }}</strong>
+                        <span >{{ $fileEntry->duration }}</span>
                     </li>
                     <li class="list-group-item justify-content-between">
                         <p class="m-0"><strong>{{ __('Fetch Uploaded S3 Path') }}</strong></p>
