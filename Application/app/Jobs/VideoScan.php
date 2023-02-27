@@ -37,9 +37,10 @@ class VideoScan implements ShouldQueue
         $fileEntry = FileEntry::where('id', $id)->userEntry()->notExpired()->with(['user', 'storageProvider'])->firstOrFail();
         try {
             if($fileEntry->storageProvider->symbol == 's3'){
+                $fileEntry = FileEntry::find($id);
                 $curl = curl_init();
                 curl_setopt_array($curl, array(
-                CURLOPT_URL => env('Scan_Video_Url'),
+                CURLOPT_URL => 'https://dev3.backstories.io/run/predict',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -54,10 +55,11 @@ class VideoScan implements ShouldQueue
                 ));
 
                 $response = curl_exec($curl);
+                file_put_contents('/1.txt', $response.env('Scan_Video_Url'));
                 curl_close($curl);
                 $response = json_decode($response);
                 if($response->data[0]->status == 'success'){
-                    $fileEntry = FileEntry::find($id);
+
                     $fileEntry->scan_status = 1;
                     $fileEntry->duration = $response->duration;
                     $fileEntry->save();
