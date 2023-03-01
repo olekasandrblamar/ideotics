@@ -190,6 +190,13 @@ Route::group(localizeOptions(), function () {
         Route::name('user.')->group(function () {
             Route::get('dashboard', 'DashboardController@index')->name('dashboard');
             Route::get('dashboard/charts/uploads', 'DashboardController@uploadsChart')->middleware('ajax.only');
+            Route::name('project.')->prefix('project')->group(function(){
+                Route::get('/', 'ProjectController@index')->name('index');
+                Route::post('/', 'ProjectController@create')->name('create');
+                Route::get('{id}/edit', 'ProjectController@edit')->name('edit');
+                Route::post('{id}/update', 'ProjectController@update')->name('update');
+                Route::delete('{id}/delete', 'ProjectController@destroy')->name('destroy');
+            });
             Route::name('videos.')->prefix('videos')->group(function () {
                 Route::get('/', 'VideoController@index')->name('index');
                 Route::get('{shared_id}/edit', 'VideoController@edit')->name('edit');
