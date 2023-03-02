@@ -21,6 +21,8 @@
                             </p>
                         </div>
                     </div>
+                    <p class="form-label">{{ lang('Project Name', 'videos') }} : {{ $fileEntry->project->title }}</p>
+                    <p class="form-label">{{ lang('Camera Name', 'videos') }} : {{ $fileEntry->camera->title }}</p>
                     <form action="{{ route('user.videos.update', $fileEntry->shared_id) }}" method="POST">
                         @csrf
                         <div class="mb-4">

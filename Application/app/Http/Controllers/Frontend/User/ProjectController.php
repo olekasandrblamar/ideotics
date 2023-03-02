@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\FileEntry;
 use App\Models\ProjectAndCamera;
 use Exception;
 use Illuminate\Http\Request;
@@ -69,7 +70,29 @@ class ProjectController extends Controller
 
     public function destroy($id)
     {
-        ProjectAndCamera::where('id', $id)->delete();
+        $projectOrCamera = ProjectAndCamera::find($id);
+        if($projectOrCamera->type == 'project'){
+            $shared_ids = FileEntry::where('project_id', $id)->select('shared_id')->get();
+        }
+        if($projectOrCamera->type == 'camera'){
+            $shared_ids = FileEntry::where('camera_id', $id)->select('shared_id')->get();
+        }
+        foreach ($shared_ids as $shared_id) {
+            $fileEntry = FileEntry::where('shared_id', $shared_id->shared_id)->currentUser()->notExpired()->first();
+            if (!is_null($fileEntry)) {
+                try {
+                    $handler = $fileEntry->storageProvider->handler;
+                    $delete = $handler::delete($fileEntry->path);
+                    if ($delete) {
+                        $fileEntry->delete();
+                    }
+                } catch (\Exception$e) {
+                    toastr()->error(lang('Video not found, missing or expired please refresh the page and try again', 'videos'));
+                    return back();
+                }
+            }
+        }
+        $projectOrCamera->delete();
         toastr()->success(lang('Deleted successfully', 'videos'));
         return back();
     }
