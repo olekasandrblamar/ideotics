@@ -1220,7 +1220,7 @@ function uploadSettings()
 
 function allowedTypes()
 {
-    return "video/mp4, video/webm";
+    return "video/mp4,video/webm,video/mpeg,video/mov,video/avi,video/flv,video/x-msvideo,video/x-flv,video/quicktime";
 }
 
 function autoDeletePeriods()
@@ -1311,6 +1311,8 @@ function fileIcon($fileExt)
         return asset('images/types/mp4.png');
     } elseif ($fileExt == "webm") {
         return asset('images/types/webm.png');
+    }else{
+        return asset('images/types/movie.png');
     }
     return '';
 }

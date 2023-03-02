@@ -13,7 +13,7 @@
                             method="POST">
                             @csrf
                             <input type="hidden" name="ids" class="multiple-select-delete-ids">
-                            <button class="vironeer-able-to-delete btn btn-danger"><i
+                            <button class="vironeer-able-to-delete btn btn-danger confirm-action-form"><i
                                     class="far fa-trash-alt me-2"></i>{{ lang('Delete Selected', 'videos') }}</button>
                         </form>
                         </div>
@@ -50,7 +50,7 @@
                                                     </a>
                                                     <div>
                                                         <a class="text-reset"
-                                                            href="{{ route('admin.uploads.users.view', $fileEntry->shared_id) }}">{{ shortertext($fileEntry->name, 50) }}</a>
+                                                            href="{{ route('user.videos.edit', $fileEntry->shared_id) }}">{{ shortertext($fileEntry->name, 50) }}</a>
                                                         <p class="text-muted mb-0">
                                                             {{ shortertext($fileEntry->mime, 50) ?? __('Unknown') }}</p>
                                                     </div>

@@ -14,6 +14,8 @@ use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
 use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
 use Str;
 use Validator;
+use FFMpeg;
+use Illuminate\Support\Facades\Storage;
 
 class UploadController extends Controller
 {
@@ -109,7 +111,63 @@ class UploadController extends Controller
                 $userId = (Auth::user()) ? Auth::user()->id : null;
                 $location = (Auth::user()) ? "users/" . hashid(userAuthInfo()->id) . "/" . hashid($project_id) . "/" . hashid($camera_id) . "/" : "guests/";
                 $handler = $storageProvider->handler;
-                $uploadResponse = $handler::upload($file, $location);
+                $uploadResponse = "";
+                if($fileExtension !== 'mp4'){
+                    $uploadResponse = \App\Http\Controllers\Frontend\Storage\LocalController::upload($file, $location);
+                    $c_filename = str_replace($fileExtension, "mp4", $uploadResponse->filename);
+                    $c_path = str_replace($fileExtension, "mp4", $uploadResponse->path);
+                    $link = base_path($uploadResponse->path);
+                    $link = str_replace( 'Application\\', "" , $link);
+                    $link = str_replace("\\", "/", $link);
+                    $convert_link = str_replace($fileExtension, "mp4", $link);
+                    $ffmpeg = FFMpeg\FFMpeg::create([
+                        'ffmpeg.binaries'  => env('FFMPEG_BINARIES'),
+                        'ffprobe.binaries' => env('FFPROBE_BINARIES'),
+                        'timeout'          => 3600,
+                        'ffmpeg.threads'   => 12,
+                    ]);
+                    $video = $ffmpeg->open($link);
+                    $format = new FFMpeg\Format\Video\X264();
+                    $format->setAudioCodec("libmp3lame");
+                    $video->save($format, $convert_link);
+                    if(env('FILESYSTEM_DRIVER') == 'local'){
+                        $uploadResponse = responseHandler([
+                            "type" => "success",
+                            "filename" => $c_filename,
+                            "path" => $c_path,
+                            "link" => url($c_path),
+                        ]);
+                    }
+                    if(env('FILESYSTEM_DRIVER') == 's3'){
+                        $disk = Storage::disk('s3');
+                        $uploadToStorage = $disk->put($c_path, file_get_contents($convert_link));
+                        if ($uploadToStorage) {
+                            $uploadResponse = responseHandler([
+                                "type" => "success",
+                                "filename" => $c_filename,
+                                "path" => $c_path,
+                                "link" => $disk->url($c_path),
+                            ]);
+                        }
+                        unlink($convert_link);
+                    }
+                    if(env('FILESYSTEM_DRIVER') == 'wasabi'){
+                        $disk = Storage::disk('wasabi');
+                        $uploadToStorage = $disk->put($c_path, file_get_contents($convert_link));
+                        if ($uploadToStorage) {
+                            $uploadResponse = responseHandler([
+                                "type" => "success",
+                                "filename" => $c_filename,
+                                "path" => $c_path,
+                                "link" => $disk->url($c_path),
+                            ]);
+                        }
+                        unlink($convert_link);
+                    }
+                    unlink($link);
+                }else{
+                    $uploadResponse = $handler::upload($file, $location);
+                }
                 if ($uploadResponse->type == "error") {
                     return $uploadResponse;
                 }

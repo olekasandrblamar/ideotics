@@ -198,6 +198,11 @@
                 icons: {
                     mp4: "{{ asset('images/types/mp4.png') }}",
                     webm: "{{ asset('images/types/webm.png') }}",
+                    avi: "{{ asset('images/types/movie.png') }}",
+                    mpeg: "{{ asset('images/types/movie.png') }}",
+                    mov: "{{ asset('images/types/movie.png') }}",
+                    avi: "{{ asset('images/types/movie.png') }}",
+                    flv: "{{ asset('images/types/movie.png') }}",
                 },
             },
             translation: {

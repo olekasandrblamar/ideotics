@@ -280,7 +280,14 @@
                     )),
                     v.on("addedfile", (function(t) {
                         if (v.files.length <= c.maxUploadFiles)
-                            if ("video/mp4" === t.type || "video/webm" === t.type) {
+                            if (
+                                "video/mp4" === t.type || 
+                                "video/webm" === t.type || 
+                                "video/mpeg" === t.type || 
+                                "video/mov" === t.type || 
+                                "video/avi" === t.type || 
+                                "video/flv" === t.type
+                                ) {
                                 var o, n;
                                 if (this.files.length)
                                     for (o = 0,
@@ -304,7 +311,12 @@
                                   , p = i.find(".dz-file-edit-submit")
                                   , m = i.find(".file-password")
                                   , y = e("[data-dz-icon]");
-                                "video/mp4" === t.type ? y.prop("src", c.types.icons.mp4) : "video/webm" === t.type && y.prop("src", c.types.icons.webm),
+                                "video/mp4" === t.type ? y.prop("src", c.types.icons.mp4) : "";
+                                "video/webm" === t.type ? y.prop("src", c.types.icons.webm) : "";
+                                "video/mpeg" === t.type ? y.prop("src", c.types.icons.mpeg) : "";
+                                "video/mov" === t.type ? y.prop("src", c.types.icons.mov) : "";
+                                "video/avi" === t.type ? y.prop("src", c.types.icons.avi) : "";
+                                "video/flv" === t.type ? y.prop("src", c.types.icons.flv) : "";
                                 l.html(r(t.size)),
                                 m.on("input", (function() {
                                     m.removeClass("is-invalid")
