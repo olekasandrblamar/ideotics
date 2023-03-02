@@ -53,4 +53,49 @@
         };
     }
 
+    let multipleSelectDeleteForm = $('.multiple-select-delete-form'),
+        multipleSelectDeleteIds = $('.multiple-select-delete-ids'),
+        multipleSelectCheckAll = $('.multiple-select-check-all'),
+        multipleSelectCheckbox = $('.multiple-select-checkbox');
+    if (multipleSelectCheckAll.length) {
+        var multipleSelectDeleteIdsArr = [];
+        multipleSelectCheckAll.on('click', function() {
+            if ($(this).is(':checked', true)) {
+                multipleSelectCheckbox.prop('checked', true);
+                multipleSelectPushDeleteIds();
+                multipleSelectDeleteForm.removeClass('d-none');
+            } else {
+                multipleSelectRemoveDeleteIds();
+                multipleSelectCheckbox.prop('checked', false);
+                multipleSelectDeleteForm.addClass('d-none');
+            }
+        });
+        multipleSelectCheckbox.on('click', function() {
+            multipleSelectPushDeleteIds()
+            if ($('.multiple-select-checkbox:checked').length == multipleSelectCheckbox.length) {
+                multipleSelectCheckAll.prop('checked', true);
+            } else {
+                multipleSelectCheckAll.prop('checked', false);
+            }
+            if ($(this).is(':checked', true)) {
+                multipleSelectDeleteForm.removeClass('d-none');
+            } else {
+                if ($('.multiple-select-checkbox:checked').length == 0) {
+                    multipleSelectDeleteForm.addClass('d-none');
+                }
+            }
+        });
+        let multipleSelectPushDeleteIds = () => {
+            multipleSelectDeleteIdsArr = [];
+            $(".multiple-select-checkbox:checked").each(function() {
+                multipleSelectDeleteIdsArr.push($(this).attr('data-id'));
+            });
+            multipleSelectDeleteIds.val(multipleSelectDeleteIdsArr);
+        }
+        let multipleSelectRemoveDeleteIds = () => {
+            multipleSelectDeleteIdsArr = [];
+            multipleSelectDeleteIds.val(multipleSelectDeleteIdsArr);
+        }
+    }
+
 })(jQuery);

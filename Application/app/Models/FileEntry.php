@@ -89,6 +89,11 @@ class FileEntry extends Model
         'views',
         'admin_has_viewed',
         'expiry_at',
+
+        'start_date',
+        'end_date',
+        'project_id',
+        'camera_id'
     ];
 
     /**
@@ -106,6 +111,16 @@ class FileEntry extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(ProjectAndCamera::class, 'project_id', 'id');
+    }
+
+    public function camera()
+    {
+        return $this->belongsTo(ProjectAndCamera::class, 'camera_id', 'id');
     }
 
     public function storageProvider()

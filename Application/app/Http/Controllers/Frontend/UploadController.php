@@ -24,7 +24,15 @@ class UploadController extends Controller
         $validator = Validator::make($request->all(), [
             'password' => ['nullable', 'max:255'],
             'upload_auto_delete' => ['required', 'integer', 'min:0', 'max:365'],
+            'start_date' => ['required'],
+            'end_date' => ['required'],
+            'project_name' => ['required'],
+            'camera_name' => ['required'],
         ]);
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+        $project_id = $request->project_name;
+        $camera_id = $request->camera_name;
         if ($validator->fails()) {
             foreach ($validator->errors()->all() as $error) {
                 return static::errorResponseHandler($error . ' (' . $uploadedFileName . ')');
@@ -99,7 +107,7 @@ class UploadController extends Controller
                 $ip = vIpInfo()->ip;
                 $sharedId = Str::random(15);
                 $userId = (Auth::user()) ? Auth::user()->id : null;
-                $location = (Auth::user()) ? "users/" . hashid(userAuthInfo()->id) . "/" : "guests/";
+                $location = (Auth::user()) ? "users/" . hashid(userAuthInfo()->id) . "/" . hashid($project_id) . "/" . hashid($camera_id) . "/" : "guests/";
                 $handler = $storageProvider->handler;
                 $uploadResponse = $handler::upload($file, $location);
                 if ($uploadResponse->type == "error") {
@@ -120,6 +128,10 @@ class UploadController extends Controller
                     'access_status' => 0,
                     'password' => $request->password,
                     'expiry_at' => $expiryAt,
+                    'start_date' => $start_date,
+                    'end_date' => $end_date,
+                    'project_id' => $project_id,
+                    'camera_id' => $camera_id,
                 ]);
                 return response()->json([
                     'type' => 'success',

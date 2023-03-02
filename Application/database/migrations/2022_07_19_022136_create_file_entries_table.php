@@ -34,6 +34,11 @@ return new class extends Migration
             $table->timestamp('expiry_at')->nullable();
             $table->foreign("user_id")->references("id")->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign("storage_provider_id")->references("id")->on('storage_providers')->onUpdate('cascade')->onDelete('cascade');
+            //Add by st
+            $table->timestamp('start_date');
+            $table->timestamp('end_date');
+            $table->foreign("project_id")->references("id")->on('project_and_cameras')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign("camera_id")->references("id")->on('project_and_cameras')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }
