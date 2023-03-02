@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\FileEntry;
+use App\Models\ProjectAndCamera;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +14,9 @@ class VideoController extends Controller
 {
     public function index()
     {
+        $projects = ProjectAndCamera::currentUser()->where('type', 'project')->get();
+        $cameras = ProjectAndCamera::currentUser()->where('type', 'camera')->get();
+
         if (request()->has('search')) {
             $q = request()->input('search');
             $fileEntries = FileEntry::where(function ($query) {
@@ -29,7 +33,12 @@ class VideoController extends Controller
         } else {
             $fileEntries = FileEntry::currentUser()->notExpired()->orderbyDesc('id')->paginate(20);
         }
-        return view('frontend.user.videos.index', ['fileEntries' => $fileEntries]);
+
+        return view('frontend.user.videos.index', [
+            'fileEntries' => $fileEntries,
+            'projects' => $projects,
+            'cameras' => $cameras,
+        ]);
     }
 
     public function edit($shared_id)

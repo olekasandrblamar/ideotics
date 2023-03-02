@@ -212,13 +212,65 @@
                       , h = e(".upload-more-btn")
                       , y = e(".uploadbox-wrapper-form")
                       , b = e(".upload-files-btn")
-                      , g = e(".upload-auto-delete");
+                      , g = e(".upload-auto-delete")
+                      , pp = e(".project-name")
+                      , cc = e(".camera-name");
+                    var gsdt, gedt, vf; // global start date time, global end start date time, video format
                     b.on("click", (function(e) {
-                        (e.preventDefault(),
-                        v.files.length > 0) ? "" != c.filesDuration && g.find(":selected").data("action") > c.filesDuration ? toastr.error(c.filesDurationError) : (b.prop("disabled", !0),
-                        y.addClass("d-none"),
-                        h.addClass("d-none"),
-                        v.processQueue()) : toastr.error(c.nofilesAttachedError)
+                        if(!pp.val()){
+                            toastr.error('Please select project!');
+                            return;
+                        }
+                        if(!cc.val()){
+                            toastr.error('Please select camera!');
+                            return;
+                        }
+                        Swal.fire({
+                            html: `
+                            <h2>Please Input</h2>
+                            <div class="form-search w-100 mb-3">
+                                <input type="datetime-local" name="start-date-time" class="form-control form-control-md" placeholder="Start Date" value="">
+                            </div>
+                            <div class="form-search w-100 mb-3">
+                                <input type="datetime-local" name="end-date-time" class="form-control form-control-md" placeholder="Start Date" value="">
+                            </div>
+                            <div class="form-search w-100">
+                                <input type="test" name="video-format" class="form-control form-control-md" placeholder="Video Format" value="">
+                            </div>
+                            `,
+                            confirmButtonText: 'Ok',
+                            showCancelButton: true,
+                            preConfirm: function() {
+                                var startDate = $('input[name="start-date-time"]').val();
+                                var endDate = $('input[name="end-date-time"]').val();
+                                var videoFormat = $('input[name="video-format"]').val();
+                                if(!videoFormat){
+                                    Swal.showValidationMessage("Please video format!");
+                                }
+                                if(!endDate){
+                                    Swal.showValidationMessage("Please end date time!");
+                                }
+                                if(!startDate){
+                                    Swal.showValidationMessage("Please start date time!");
+                                }
+                                return new Promise(function (resolve, reject) {
+                                    return resolve({
+                                        startDate: startDate,
+                                        endDate: endDate,
+                                        videoFormat: videoFormat
+                                    })
+                                  })
+                            }
+                        }).then((data) => {
+                            gsdt = data.value.startDate;
+                            gedt = data.value.endDate;
+                            vf = data.value.videoFormat;
+                            (e.preventDefault(),
+                            v.files.length > 0) ? "" != c.filesDuration && g.find(":selected").data("action") > c.filesDuration ? toastr.error(c.filesDurationError) : (b.prop("disabled", !0),
+                            y.addClass("d-none"),
+                            h.addClass("d-none"),
+                            v.processQueue()) : toastr.error(c.nofilesAttachedError)
+                        });                 
                     }
                     ));
                     var w = e(".reset-upload-box");
@@ -296,6 +348,11 @@
                           , l = a.find(".file-password");
                         n.append("size", t.size),
                         n.append("type", t.type),
+                        n.append("start_date", gsdt),
+                        n.append("end_date", gedt),
+                        n.append("video_format", vf),
+                        n.append("project_name", pp.val()),
+                        n.append("camera_name", cc.val()),
                         l.length && n.append("password", l.val()),
                         n.append("upload_auto_delete", e(".upload-auto-delete").val()),
                         i.remove(),
@@ -322,7 +379,12 @@
                             if ("success" == n.type)
                                 // o.find(".dz-preview-container").append('<div class="mt-3"><label class="form-label">' + c.translation.shareLink + '</label><div class="form-button"><input id="' + n.file_id + '" type="text" class="form-control form-control-md" value="' + n.file_link + '" readonly /><button class="btn-copy" data-clipboard-target="#' + n.file_id + '"><i class="fa-regular fa-clone"></i></button></div></div><div class="mt-3"><a href="' + n.file_link + '" target="_blank" class="btn btn-primary btn-md w-100"><i class="fa-solid fa-up-right-from-square me-2"></i>' + c.translation.openLink + "</a></div>"),
                                 // l();
-                                window.location.href = window.location.href;
+                                // window.location.href = window.location.href;
+                                if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0){
+                                    window.location.href = window.location.href;
+                                }else{
+                                    console.log('uploading...');
+                                } 
                             else
                                 o.removeClass("dz-success"),
                                 o.addClass("dz-error"),

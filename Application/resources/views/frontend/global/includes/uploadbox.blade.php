@@ -12,7 +12,27 @@
             </div>
         </div>
         <div class="uploadbox-body">
-            <div class="uploadbox-body-header">
+            <div class="col-md-12 mt-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <select class="project-name form-select form-select-md">
+                            <option value="">{{ lang('Please select project', 'upload zone') }}</option>
+                            @foreach($projects as $project)
+                            <option value="{{ $project->id }}">{{ $project->title }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="camera-name form-select form-select-md">
+                            <option value="">{{ lang('Please select camera', 'upload zone') }}</option>
+                            @foreach($cameras as $camera)
+                            <option value="{{ $camera->id }}">{{ $camera->title }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="uploadbox-body-header mt-3">
                 <div class="d-flex text-muted small">
                     <span>{!! str_replace(
                         '{max_file_size}',
