@@ -12,15 +12,17 @@ use Validator;
 
 class VideoController extends Controller
 {
-    public function index()
+    public function videos_index($project_id, $camera_id)
     {
+        $breadCrumbProject = ProjectAndCamera::currentUser()->where('type', 'project')->find($project_id);
+        $breadCrumbCamera = ProjectAndCamera::currentUser()->where('type', 'camera')->find($camera_id);
         $projects = ProjectAndCamera::currentUser()->where('type', 'project')->orderBy('title', 'asc')->get();
         $cameras = ProjectAndCamera::currentUser()->where('type', 'camera')->orderBy('title', 'asc')->get();
 
         if (request()->has('search')) {
             $q = request()->input('search');
-            $fileEntries = FileEntry::where(function ($query) {
-                $query->currentUser();
+            $fileEntries = FileEntry::where(function ($query) use ($project_id, $camera_id) {
+                $query->currentUser()->where('project_id', $project_id)->where('camera_id', $camera_id);
             })->where(function ($query) use ($q) {
                 $query->where('shared_id', 'like', '%' . $q . '%')
                     ->OrWhere('name', 'like', '%' . $q . '%')
@@ -31,10 +33,13 @@ class VideoController extends Controller
             })->notExpired()->orderByDesc('id')->paginate(20);
             $fileEntries->appends(['search' => $q]);
         } else {
-            $fileEntries = FileEntry::currentUser()->notExpired()->orderbyDesc('id')->paginate(20);
+            $fileEntries = FileEntry::currentUser()->notExpired()->where('project_id', $project_id)->where('camera_id', $camera_id)->orderbyDesc('id')->paginate(20);
         }
 
         return view('frontend.user.videos.index', [
+            'breadCrumbType' => 'camera',
+            'breadCrumbProject' => $breadCrumbProject,
+            'breadCrumbCamera' =>$breadCrumbCamera,
             'fileEntries' => $fileEntries,
             'projects' => $projects,
             'cameras' => $cameras,
@@ -58,6 +63,32 @@ class VideoController extends Controller
         }
         return view('frontend.user.videos.projects', [
             'dProjects' => $dProjects,
+            'projects' => $projects,
+            'cameras' => $cameras,
+        ]);
+    }
+
+    function cameras_index($project_id){
+        $breadCrumbProject = ProjectAndCamera::currentUser()->where('type', 'project')->find($project_id);
+        $cameras_id = FileEntry::currentUser()->notExpired()->where('project_id', $project_id)->groupBy('camera_id')->pluck('camera_id')->toArray();
+        $projects = ProjectAndCamera::currentUser()->where('type', 'project')->orderBy('title', 'asc')->get();
+        $cameras = ProjectAndCamera::currentUser()->where('type', 'camera')->orderBy('title', 'asc')->get();
+
+        if (request()->has('search')) {
+            $q = request()->input('search');
+            $dCameras = ProjectAndCamera::where(function ($query) use ($cameras_id) {
+                $query->currentUser()->where('type', 'camera')->whereIn('id', $cameras_id);
+            })->where(function ($query) use ($q) {
+                $query->where('title', 'like', '%' . $q . '%');
+            })->notExpired()->orderBy('title', 'asc')->paginate(20);
+            $dCameras->appends(['search' => $q]);
+        } else {
+            $dCameras = ProjectAndCamera::currentUser()->where('type', 'camera')->whereIn('id', $cameras_id)->orderBy('title', 'asc')->paginate(20);
+        }
+        return view('frontend.user.videos.cameras', [
+            'breadCrumbType' => 'project',
+            'breadCrumbProject' => $breadCrumbProject,
+            'dCameras' => $dCameras,
             'projects' => $projects,
             'cameras' => $cameras,
         ]);
@@ -135,7 +166,7 @@ class VideoController extends Controller
             if ($delete) {
                 $fileEntry->delete();
                 toastr()->success(lang('Deleted successfully', 'videos'));
-                return redirect()->route('user.videos.index');
+                return redirect()->back();
             }
         } catch (\Exception$e) {
             toastr()->error(lang('There was a problem while trying to delete the video', 'videos'));

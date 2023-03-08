@@ -106,14 +106,25 @@ class ProjectController extends Controller
         $ids = explode(',', $request->ids);
         foreach ($ids as $id) {
             $projectOrCamera = ProjectAndCamera::find($id);
-            if($projectOrCamera->type == 'project'){
+            if(!isset($request->project_id)){
                 $shared_ids = FileEntry::where('project_id', $id)->select('shared_id')->get();
-            }
-            if($projectOrCamera->type == 'camera'){
-                $shared_ids = FileEntry::where('camera_id', $id)->select('shared_id')->get();
-            }
-            foreach ($shared_ids as $shared_id) {
-                $fileEntry = FileEntry::where('shared_id', $shared_id->shared_id)->currentUser()->notExpired()->first();
+                foreach ($shared_ids as $shared_id) {
+                    $fileEntry = FileEntry::where('shared_id', $shared_id->shared_id)->currentUser()->notExpired()->first();
+                    if (!is_null($fileEntry)) {
+                        try {
+                            $handler = $fileEntry->storageProvider->handler;
+                            $delete = $handler::delete($fileEntry->path);
+                            if ($delete) {
+                                $fileEntry->delete();
+                            }
+                        } catch (\Exception $e) {
+                            toastr()->error(lang('Video not found, missing or expired please refresh the page and try again', 'videos'));
+                            return back();
+                        }
+                    }
+                }
+            }else{
+                $fileEntry = FileEntry::where('project_id', $request->project_id)->where('camera_id', $id)->currentUser()->notExpired()->first();
                 if (!is_null($fileEntry)) {
                     try {
                         $handler = $fileEntry->storageProvider->handler;
@@ -127,6 +138,7 @@ class ProjectController extends Controller
                     }
                 }
             }
+
             $projectOrCamera->delete();
         }
         toastr()->success(lang('Deleted successfully', 'videos'));

@@ -200,6 +200,8 @@ Route::group(localizeOptions(), function () {
             });
             Route::name('videos.')->prefix('videos')->group(function () {
                 Route::get('/', 'VideoController@projects_index')->name('index');
+                Route::get('/projects/{project_id}', 'VideoController@cameras_index')->name('cameras.index')->where('project_id', '[0-9]+');
+                Route::get('/projects/{project_id}/cameras/{camera_id}', 'VideoController@videos_index')->name('videos.index')->where(['project_id' => '[0-9]+', 'camera_id' => '[0-9]+']);
                 // Route::get('/', 'VideoController@index')->name('index');
                 Route::get('{shared_id}/edit', 'VideoController@edit')->name('edit');
                 Route::post('{shared_id}/update', 'VideoController@update')->name('update');
