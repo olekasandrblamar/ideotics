@@ -196,9 +196,11 @@ Route::group(localizeOptions(), function () {
                 Route::get('{id}/edit', 'ProjectController@edit')->name('edit');
                 Route::post('{id}/update', 'ProjectController@update')->name('update');
                 Route::delete('{id}/delete', 'ProjectController@destroy')->name('destroy');
+                Route::post('delete/all', 'ProjectController@destroyAll')->name('destroy.all');
             });
             Route::name('videos.')->prefix('videos')->group(function () {
-                Route::get('/', 'VideoController@index')->name('index');
+                Route::get('/', 'VideoController@projects_index')->name('index');
+                // Route::get('/', 'VideoController@index')->name('index');
                 Route::get('{shared_id}/edit', 'VideoController@edit')->name('edit');
                 Route::post('{shared_id}/update', 'VideoController@update')->name('update');
                 Route::get('{shared_id}/download', 'VideoController@download')->name('download');

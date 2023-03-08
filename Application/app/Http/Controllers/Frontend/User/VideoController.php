@@ -14,8 +14,8 @@ class VideoController extends Controller
 {
     public function index()
     {
-        $projects = ProjectAndCamera::currentUser()->where('type', 'project')->get();
-        $cameras = ProjectAndCamera::currentUser()->where('type', 'camera')->get();
+        $projects = ProjectAndCamera::currentUser()->where('type', 'project')->orderBy('title', 'asc')->get();
+        $cameras = ProjectAndCamera::currentUser()->where('type', 'camera')->orderBy('title', 'asc')->get();
 
         if (request()->has('search')) {
             $q = request()->input('search');
@@ -36,6 +36,28 @@ class VideoController extends Controller
 
         return view('frontend.user.videos.index', [
             'fileEntries' => $fileEntries,
+            'projects' => $projects,
+            'cameras' => $cameras,
+        ]);
+    }
+
+    function projects_index(){
+        $projects = ProjectAndCamera::currentUser()->where('type', 'project')->orderBy('title', 'asc')->get();
+        $cameras = ProjectAndCamera::currentUser()->where('type', 'camera')->orderBy('title', 'asc')->get();
+
+        if (request()->has('search')) {
+            $q = request()->input('search');
+            $dProjects = ProjectAndCamera::where(function ($query) {
+                $query->currentUser()->where('type', 'project');
+            })->where(function ($query) use ($q) {
+                $query->where('title', 'like', '%' . $q . '%');
+            })->notExpired()->orderBy('title', 'asc')->paginate(20);
+            $dProjects->appends(['search' => $q]);
+        } else {
+            $dProjects = ProjectAndCamera::currentUser()->where('type', 'project')->orderBy('title', 'asc')->paginate(20);
+        }
+        return view('frontend.user.videos.projects', [
+            'dProjects' => $dProjects,
             'projects' => $projects,
             'cameras' => $cameras,
         ]);

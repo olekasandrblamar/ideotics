@@ -15,8 +15,8 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projects = ProjectAndCamera::currentUser()->where('type', 'project')->get();
-        $cameras = ProjectAndCamera::currentUser()->where('type', 'camera')->get();
+        $projects = ProjectAndCamera::currentUser()->where('type', 'project')->orderBy('title', 'asc')->get();
+        $cameras = ProjectAndCamera::currentUser()->where('type', 'camera')->orderBy('title', 'asc')->get();
         return view('frontend.user.project.index', ['projects' => $projects, 'cameras' => $cameras]);
     }
 
@@ -65,7 +65,7 @@ class ProjectController extends Controller
         $projectOrCamera->title = $request->title;
         $projectOrCamera->save();
         toastr()->success(lang('Updated successfully', 'videos'));
-        return  redirect()->route('user.project.index');
+        return  redirect()->back();
     }
 
     public function destroy($id)
@@ -99,27 +99,37 @@ class ProjectController extends Controller
 
     public function destroyAll(Request $request)
     {
-        // if (empty($request->ids)) {
-        //     toastr()->error(lang('You have not selected any video', 'videos'));
-        //     return back();
-        // }
-        // $ids = explode(',', $request->ids);
-        // foreach ($ids as $shared_id) {
-        //     $fileEntry = FileEntry::where('shared_id', $shared_id)->currentUser()->notExpired()->first();
-        //     if (!is_null($fileEntry)) {
-        //         try {
-        //             $handler = $fileEntry->storageProvider->handler;
-        //             $delete = $handler::delete($fileEntry->path);
-        //             if ($delete) {
-        //                 $fileEntry->delete();
-        //             }
-        //         } catch (\Exception$e) {
-        //             toastr()->error(lang('Video not found, missing or expired please refresh the page and try again', 'videos'));
-        //             return back();
-        //         }
-        //     }
-        // }
-        // toastr()->success(lang('Deleted successfully', 'videos'));
-        // return back();
+        if (empty($request->ids)) {
+            toastr()->error(lang('You have not selected any project', 'videos'));
+            return back();
+        }
+        $ids = explode(',', $request->ids);
+        foreach ($ids as $id) {
+            $projectOrCamera = ProjectAndCamera::find($id);
+            if($projectOrCamera->type == 'project'){
+                $shared_ids = FileEntry::where('project_id', $id)->select('shared_id')->get();
+            }
+            if($projectOrCamera->type == 'camera'){
+                $shared_ids = FileEntry::where('camera_id', $id)->select('shared_id')->get();
+            }
+            foreach ($shared_ids as $shared_id) {
+                $fileEntry = FileEntry::where('shared_id', $shared_id->shared_id)->currentUser()->notExpired()->first();
+                if (!is_null($fileEntry)) {
+                    try {
+                        $handler = $fileEntry->storageProvider->handler;
+                        $delete = $handler::delete($fileEntry->path);
+                        if ($delete) {
+                            $fileEntry->delete();
+                        }
+                    } catch (\Exception$e) {
+                        toastr()->error(lang('Video not found, missing or expired please refresh the page and try again', 'videos'));
+                        return back();
+                    }
+                }
+            }
+            $projectOrCamera->delete();
+        }
+        toastr()->success(lang('Deleted successfully', 'videos'));
+        return back();
     }
 }
