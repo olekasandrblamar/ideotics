@@ -1,149 +1,89 @@
 @extends('frontend.user.layouts.dash')
-@section('title', lang('My Projects & Cameras', 'Project & Cameras'))
+@section('title', lang('Projects', 'projects'))
 @section('content')
-    <div class="row row-cols-1 row-cols-md-2 justify-content-center g-3">
-        <div class="col">
-            <div class="card-v v3">
-                <div class="card-v-body">
-                    <div class="stats">
-                        <div class="stats-info">
-                            <div class="stats-meta">
-                                <h3 class="stats-title">{{ lang('New Project', 'projects') }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <form action="{{ route('user.project.create') }}" method="POST">
-                            @csrf
+    <div class="section-body">
+        <div class="card-v v3">
+            <div class="card-v-body">
+                <div class="col-md-12">
+                    <div class="d-flex j-right">
+                        <form action="{{ route('user.projects.index') }}" class="me-2" method="GET">
                             <div class="form-search w-100">
-                                <input type="text" name="project_name"
+                                <input type="text" name="search"
                                     class="form-control form-control-md"
-                                    placeholder="{{ lang('Project Name', 'projects') }}"
-                                    value="" required>
-                                <input type="hidden" name="type" value="project">
-                            </div>
-                            <div class="row mt-4">
-                                <div class="col-md-8"></div>
-                                <div class="col-md-4">
-                                    <button class="btn btn-danger w-100 btn-md">
-                                        {{ lang('Create', 'projects') }}
+                                    placeholder="{{ lang('Search...', 'videos') }}"
+                                    value="{{ request()->input('search') ?? '' }}">
+                                <button class="icon">
+                                    <i class="fa fa-search"></i>
                                     </button>
-                                </div>
                             </div>
                         </form>
+                        <button class="btn btn-primary btn-md">
+                            <i class="fa fa-upload me-2"></i>{{ lang('Add', 'projects')}}
+                        </button>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card-v v3">
-                <div class="card-v-body">
-                    <div class="stats">
-                        <div class="stats-info">
-                            <div class="stats-meta">
-                                <h3 class="stats-title">{{ lang('Projects', 'projects') }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <table class="table table-bordered">
+                <div class="col-md-12 mt-2">
+                    <div class="table-responsive mt-2">
+                        <table class="vironeer-normal-table table w-100">
                             <thead>
                                 <tr>
-                                    <th>Project Name</th>
-                                    <th></th>
+                                    <th class="tb-w-3x">
+                                        <input class="multiple-select-check-all form-check-input" type="checkbox">
+                                    </th>
+                                    <th class="tb-w-20x">{{ lang('Project name', 'projects') }}</th>
+                                    <th class="tb-w-7x text-center">{{ lang('Created date', 'projects') }}</th>
+                                    <th class="text-end"><i class="fas fa-sliders-h me-1"></i></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($projects as $project)
-                                <tr>
-                                    <td>{{ $project->title }}</td>
-                                    <td class="text-center">
-                                        <a type="button" href="{{ route('user.project.edit', $project->id) }}" class="btn btn-primary btn-md me-2 d-inline">
-                                            {{ lang('Edit', 'projects') }}
-                                        </a>
-                                        <form class="d-inline" action="{{ route('user.project.destroy', $project->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-danger btn-md confirm-action-form">{{ lang('Delete', 'projects') }}</button>
-                                        </form>
-                                    </td>
-                                </tr>
+                                @foreach ($projects as $project)
+                                    <tr>
+                                        <td>
+                                            <input class="form-check-input multiple-select-checkbox"
+                                                data-id="{{ $fileEntry->id }}" type="checkbox">
+                                        </td>
+                                        <td>
+                                            {{ $project->title}}
+                                        </td>
+                                        <td class="text-center">{{ vDate($project->created_at) }}</td>
+                                        <td>
+                                            <div class="text-end">
+                                                <button type="button" class="btn btn-sm rounded-3" data-bs-toggle="dropdown"
+                                                    aria-expanded="true">
+                                                    <i class="fa fa-ellipsis-v fa-sm text-muted"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-md-end dropdown-menu-lg"
+                                                    data-popper-placement="bottom-end">
+                                                    <li>
+                                                        <a href=""
+                                                            class="dropdown-item">
+                                                            <i class="fa fa-edit"></i>
+                                                            {{ lang('Edit', 'projects') }}
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <hr class="dropdown-divider" />
+                                                    </li>
+                                                    <li>
+                                                        <a href="#" class="dropdown-item text-danger delete-file"
+                                                            data-id="">
+                                                            <i class="fa-regular fa-trash-can"></i>
+                                                            {{ lang('Delete', 'projects') }}
+                                                        </a>
+                                                        <form id="deleteFile{{ $project->id }}"
+                                                            action="" method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @endforeach
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card-v v3">
-                <div class="card-v-body">
-                    <div class="stats">
-                        <div class="stats-info">
-                            <div class="stats-meta">
-                                <h3 class="stats-title">{{ lang('New Camera', 'projects') }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <form action="{{ route('user.project.create') }}" method="POST">
-                            @csrf
-                            <div class="form-search w-100">
-                                <input type="text" name="camera_name"
-                                    class="form-control form-control-md"
-                                    placeholder="{{ lang('Camera Name', 'projects') }}"
-                                    value="" required>
-                                <input type="hidden" name="type" value="camera">
-                            </div>
-                            <div class="row mt-4">
-                                <div class="col-md-8"></div>
-                                <div class="col-md-4">
-                                    <button class="btn btn-danger w-100 btn-md">
-                                        {{ lang('Create', 'projects') }}
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card-v v3">
-                <div class="card-v-body">
-                    <div class="stats">
-                        <div class="stats-info">
-                            <div class="stats-meta">
-                                <h3 class="stats-title">{{ lang('Cameras', 'project') }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Camera Name</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($cameras as $camera)
-                                <tr>
-                                    <td>{{ $camera->title }}</td>
-                                    <td class="text-center">
-                                        <a type="button" href="{{ route('user.project.edit', $camera->id) }}" class="btn btn-primary btn-md d-inline me-2">
-                                            {{ lang('Edit', 'projects') }}
-                                        </a>
-                                        <form class="d-inline" action="{{ route('user.project.destroy', $camera->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-danger btn-md confirm-action-form">{{ lang('Delete', 'projects') }}</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+
                     </div>
                 </div>
             </div>

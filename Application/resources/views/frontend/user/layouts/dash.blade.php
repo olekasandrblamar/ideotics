@@ -30,9 +30,9 @@
                                 <i class="fa-solid fa-table-columns me-1"></i>
                                 <span>{{ lang('Dashboard', 'user') }}</span>
                             </a>
-                            <a href="{{ route('user.project.index') }}" class="link">
+                            <a href="{{ route('user.projects.index') }}" class="link">
                                 <i class="fa-solid fa-diagram-project me-1"></i>
-                                <span>{{ lang('Project & Camera', 'user') }}</span>
+                                <span>{{ lang('Projects', 'user') }}</span>
                             </a>
                             <a href="{{ route('user.videos.index') }}" class="link">
                                 <i class="fa-solid fa-circle-play me-1"></i>

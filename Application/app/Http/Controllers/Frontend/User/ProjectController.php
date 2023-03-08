@@ -4,54 +4,54 @@ namespace App\Http\Controllers\Frontend\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\FileEntry;
-use App\Models\ProjectAndCamera;
+use App\Models\Project;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Validator;
-use Auth;
 
 class ProjectController extends Controller
 {
     public function index()
     {
-        $projects = ProjectAndCamera::currentUser()->where('type', 'project')->orderBy('title', 'asc')->get();
-        $cameras = ProjectAndCamera::currentUser()->where('type', 'camera')->orderBy('title', 'asc')->get();
-        return view('frontend.user.project.index', ['projects' => $projects, 'cameras' => $cameras]);
+        $projects = Project::currentUser()->orderBy('title', 'asc')->get();
+        return view('frontend.user.project.index', ['projects' => $projects]);
     }
 
-    public function create(Request $request)
-    {
-        $projectOrCamera = new ProjectAndCamera();
-        $type = $request->type;
-        if($request->type == 'project'){
-            $title = $request->project_name;
-            $exist = ProjectAndCamera::where('title', $title)->where('type', $type)->count();
-            if($exist){
-                $message = lang('The project name is existed already', 'projects');
-                toastr()->error($message);
-                return back();
-            }
-            $projectOrCamera->title = $request->project_name;
-            $message = lang('New project name is created successfully', 'projects');
-        }
-        if($request->type == 'camera'){
-            $title = $request->camera_name;
-            $exist = ProjectAndCamera::where('title', $title)->where('type', $type)->count();
-            if($exist){
-                $message = lang('The camera name is existed already', 'projects');
-                toastr()->error($message);
-                return back();
-            }
-            $projectOrCamera->title = $title;
-            $message = lang('New camera name is created successfully', 'projects');
-        }
-        $projectOrCamera->type = $type;
-        $projectOrCamera->user_id = userAuthInfo()->id;
-        $projectOrCamera->save();
-        toastr()->success($message);
-        return  redirect()->route('user.project.index');
+    public function create(){
+        return view('frontend.user.project.create');
     }
+
+    // public function create(Request $request)
+    // {
+    //     $projectOrCamera = new ProjectAndCamera();
+    //     $type = $request->type;
+    //     if($request->type == 'project'){
+    //         $title = $request->project_name;
+    //         $exist = ProjectAndCamera::where('title', $title)->where('type', $type)->count();
+    //         if($exist){
+    //             $message = lang('The project name is existed already', 'projects');
+    //             toastr()->error($message);
+    //             return back();
+    //         }
+    //         $projectOrCamera->title = $request->project_name;
+    //         $message = lang('New project name is created successfully', 'projects');
+    //     }
+    //     if($request->type == 'camera'){
+    //         $title = $request->camera_name;
+    //         $exist = ProjectAndCamera::where('title', $title)->where('type', $type)->count();
+    //         if($exist){
+    //             $message = lang('The camera name is existed already', 'projects');
+    //             toastr()->error($message);
+    //             return back();
+    //         }
+    //         $projectOrCamera->title = $title;
+    //         $message = lang('New camera name is created successfully', 'projects');
+    //     }
+    //     $projectOrCamera->type = $type;
+    //     $projectOrCamera->user_id = userAuthInfo()->id;
+    //     $projectOrCamera->save();
+    //     toastr()->success($message);
+    //     return  redirect()->route('user.project.index');
+    // }
 
     public function edit($id)
     {

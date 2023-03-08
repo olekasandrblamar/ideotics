@@ -4,7 +4,6 @@
 @section('content')
     @if ($fileEntries->count() > 0)
         <div class="section-body">
-
             <div class="card-v v3">
                 <div class="card-v-body">
                     <div class="col-md-12">

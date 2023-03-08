@@ -8,8 +8,8 @@
         <a href="{{ route('user.dashboard') }}" class="drop-down-item">
             <i class="fa-solid fa-table-columns"></i>{{ lang('Dashboard', 'user') }}
         </a>
-        <a href="{{ route('user.project.index') }}" class="drop-down-item">
-            <i class="fa-solid fa-diagram-project"></i>{{ lang('Project & Camera', 'user') }}
+        <a href="{{ route('user.projects.index') }}" class="drop-down-item">
+            <i class="fa-solid fa-diagram-project"></i>{{ lang('Projects', 'user') }}
         </a>
         <a href="{{ route('user.videos.index') }}" class="drop-down-item">
             <i class="fa-solid fa-circle-play"></i>{{ lang('My Videos', 'user') }}
